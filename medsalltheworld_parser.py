@@ -1,20 +1,26 @@
-'''This file contains result for parsing names from
-Results of parsing you can download from https://cloud.mail.ru/public/NHUP/TkfDJY7Gz'''
+"""This file contains result for parsing names from
+Results of parsing you can download from https://cloud.mail.ru/public/NHUP/TkfDJY7Gz
+Project link: https://kwork.ru/track?id=4063767"""
 
 import os
 import time
 import datetime
 import string
 
+from bs4 import BeautifulSoup
+
 from selenium.webdriver.common import desired_capabilities
 from selenium.webdriver.opera import options
 from selenium import webdriver
 
-from bs4 import BeautifulSoup
 import xlsxwriter
 
 
 def download_pages():
+    """
+    Download necessary pages from http://medsalltheworld.com
+    :return:
+    """
     # Replace this path with the actual path on your machine.
     current_dir = os.path.dirname(__file__)
     opera_driver_filename = os.path.join(current_dir, 'operadriver.exe')
@@ -26,14 +32,13 @@ def download_pages():
     opera_capabilities = desired_capabilities.DesiredCapabilities.OPERA.copy()
 
     opera_options = options.ChromeOptions()
-    opera_options._binary_location = oper_exe_file_location
+    opera_options.binary_location = oper_exe_file_location
 
-    # Use the below argument if you want the Opera browser to be in the maximized state when launching.
-    # The full list of supported arguments can be found on http://peter.sh/experiments/chromium-command-line-switches/
+    # Use the below argument if you want the Opera browser to be in the max. state when launching.
     opera_options.add_argument('--start-maximized')
 
     driver = webdriver.Chrome(executable_path=opera_driver_location, chrome_options=opera_options,
-                                           desired_capabilities=opera_capabilities)
+                              desired_capabilities=opera_capabilities)
     # Some sites don't open from Russia. So, you have 5 seconds to enable Opera VPN.
     vpn_settings_url = 'opera://settings/vpn'
     driver.get(vpn_settings_url)
@@ -49,11 +54,17 @@ def download_pages():
         current_dir = os.path.dirname(__file__)
         html_filename = 'htmls\\page_' + '_' + letter_part
         full_filename = os.path.join(current_dir, html_filename)
-        with open(full_filename, "w", encoding="utf-8") as f:
-            f.write(page)
+        with open(full_filename, "w", encoding="utf-8") as file:
+            file.write(page)
 
 
 def create_headers(worksheet, workbook):
+    """
+    Add headers to Excel-file
+    :param worksheet:
+    :param workbook:
+    :return:
+    """
     # Add a bold format to use to highlight cells.
     bold = workbook.add_format({'bold': True})
 
@@ -67,12 +78,24 @@ def create_headers(worksheet, workbook):
     worksheet.write('C1', 'Saved page', bold)
 
 
-def parse_pages():
+def get_html_filenames():
+    """
+    Get html-file names in 'html'-directory
+    :return:
+    """
     filenames = []
     file_folder = os.getcwd() + "\\htmls"
     for file in os.listdir(file_folder):
         if file.endswith(".html"):
-            filenames.append(file)
+            filenames.append('htmls\\' + file)
+    return filenames
+
+
+def parse_pages():
+    """
+    Parse saved pages and save data to Excel-file.
+    :return:
+    """
 
     excel_filename = 'Result_' + datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S') + '.xlsx'
     workbook = xlsxwriter.Workbook(excel_filename)
@@ -86,15 +109,15 @@ def parse_pages():
     cell_format = workbook.add_format()
     cell__wrapped_format = workbook.add_format()
     cell__wrapped_format.set_text_wrap()
-    for filename in filenames:
-        full_filename = 'htmls\\' + filename
+    site_url = 'http://medsalltheworld.com/'
+    for full_filename in get_html_filenames():
         with open(full_filename, "r", encoding="utf-8") as html_file:
             try:
                 soup = BeautifulSoup(html_file.read(), "lxml")
                 product_name_elements = soup.find_all("li", class_="col-xs-6 col-md-4")
                 for elem in product_name_elements:
                     name = elem.select('h3')[0].text.replace('®', '')
-                    elem_url = 'http://medsalltheworld.com/' + elem.select('h3')[0].find('a')['href']
+                    elem_url = site_url + elem.select('h3')[0].find('a')['href']
 
                     worksheet_all.write(row, col, name, cell_format)
                     worksheet_all.write(row, col + 1, elem_url, cell_format)
