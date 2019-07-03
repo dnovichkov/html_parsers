@@ -5,7 +5,6 @@ import os
 import requests
 from bs4 import BeautifulSoup
 import datetime
-import xlsxwriter
 from multiprocessing import Pool
 
 
@@ -26,43 +25,23 @@ def get_pages(start_pos=1, proc_count=ITERATION_COUNT):
         with open(filemame, "w", encoding="utf-8") as f:
             f.write(resp.text)
 
-        # print(resp.text)
-
-        # soup = BeautifulSoup(resp.text, "lxml")
-        #
-        # product_name_elements = soup.find_all("loc")
-        # for elem in product_name_elements:
-        #     worksheet_all.write(row, col, elem.text, cell_format)
-        #     row += 1
-            # print(elem.loc)
-            # print('__________')
-            # name = elem.select('h3')[0].text.replace('®', '')
-        # print(resp.content)
-
 
 def parse_data():
 
-    excel_filename = 'Result_imdb_' + datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S') + '.xlsx'
-    workbook = xlsxwriter.Workbook(excel_filename, {'strings_to_urls': False})
-    worksheet_all = workbook.add_worksheet()
+    # excel_filename = 'Result_imdb_' + datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S') + '.xlsx'
+    csv_filename = 'Result_imdb_' + datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S') + '.csv'
+    with open(csv_filename, "w", encoding="utf-8") as f:
 
-    row = 1
-    col = 0
+        for page_number in range(1, 2000):
+            print(page_number)
+            filename = 'xmls\\title-' + str(page_number) + '.xml'
+            with open(filename, "r", encoding="utf-8") as xml_file:
+                soup = BeautifulSoup(xml_file.read(), "lxml")
 
-    cell_format = workbook.add_format()
-    for page_number in range(1, 2000):
-        print(page_number)
-        filename = 'xmls\\title-' + str(page_number) + '.xml'
-        with open(filename, "r", encoding="utf-8") as xml_file:
-            soup = BeautifulSoup(xml_file.read(), "lxml")
-
-            product_name_elements = soup.find_all("loc")
-            for elem in product_name_elements:
-                worksheet_all.write(row, col, elem.text, cell_format)
-                worksheet_all.write(row, col+1, filename, cell_format)
-                row += 1
-
-    workbook.close()
+                product_name_elements = soup.find_all("loc")
+                for elem in product_name_elements:
+                    f.write(elem.text)
+                    f.write('\r')
 
 if __name__ == "__main__":
 
