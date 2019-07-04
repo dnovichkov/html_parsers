@@ -140,7 +140,7 @@ def parse_pages():
     :return:
     """
 
-    excel_filename = 'Result_' + datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S') + '.xlsx'
+    excel_filename = 'RIAI_Result_' + datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S') + '.xlsx'
     workbook = xlsxwriter.Workbook(excel_filename)
     worksheet_all = workbook.add_worksheet()
 
@@ -193,7 +193,7 @@ def parse_pages():
                     # print(lead_partner)
                     if 'Lead Partner:' in lead_partner:
                         lead_partner = info[6].text
-                    if 'Partners' in content:
+                    if 'Partners' in content.text:
                         partners = content.find('ul').text
                     # print(partners)
 
