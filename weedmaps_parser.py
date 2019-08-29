@@ -53,21 +53,26 @@ def create_headers(worksheet, workbook):
     bold = workbook.add_format({'bold': True})
 
     # Write some data headers.
-    worksheet.set_column('A:A', 14)
-    worksheet.set_column('B:B', 23)
+    worksheet.set_column('A:A', 32)
+    worksheet.set_column('B:B', 26)
     worksheet.set_column('C:C', 14)
     worksheet.set_column('D:D', 20)
-    worksheet.set_column('E:E', 14)
+    worksheet.set_column('E:E', 9)
     worksheet.set_column('F:F', 42)
-    worksheet.set_column('G:G', 20)
+    worksheet.set_column('G:G', 29)
+    worksheet.set_column('G:G', 29)
+    worksheet.set_column('H:H', 14)
 
     worksheet.write('A1', 'Name', bold)
     worksheet.write('B1', 'Location', bold)
-    worksheet.write('C1', 'Email', bold)
-    worksheet.write('D1', 'Website', bold)
-    worksheet.write('E1', 'Phone', bold)
-    worksheet.write('F1', 'Day and Hours', bold)
-    worksheet.write('G1', 'Saved page', bold)
+    worksheet.write('C1', 'City', bold)
+    worksheet.write('D1', 'State', bold)
+    worksheet.write('E1', 'Zip', bold)
+    worksheet.write('F1', 'Email', bold)
+    worksheet.write('G1', 'Website', bold)
+    worksheet.write('H1', 'Phone', bold)
+    worksheet.write('I1', 'Day and Hours', bold)
+    worksheet.write('J1', 'Saved page', bold)
 
 
 def parse_pages():
@@ -98,47 +103,71 @@ def parse_pages():
                 name = "None"
                 try:
                     name = soup.find("h1", class_="styled-components__Name-soafp9-0 cWmvtr").text
-                    print(name)
+                    # print(name)
                 except AttributeError:
                     print("Can't find name")
                 location = ''
                 try:
-                    location = soup.find("p", class_="styled-components__AddressRow-sc-1k0lbjf-2 dwPNra").text
-                    print(location)
+                    location = soup.find_all("p", class_="styled-components__AddressRow-sc-1k0lbjf-2 dwPNra")[0].text
+                    # print(location)
                 except AttributeError:
                     print("Can't find location")
+                city = ''
+                state = ''
+                zip_code = ''
+                try:
+                    address = soup.find_all("p", class_="styled-components__AddressRow-sc-1k0lbjf-2 dwPNra")[1].text
+                    city = address.split(',')[0]
+                    if len(address.split(',')) > 1:
+                        data = address.split(',')[1].split(' ')
+                        # data.remove('')
+                        data = list(filter(('').__ne__, data))
+                        zip_code = [s for s in data if (not s.isalnum() or s.isdigit())][0]
+                        state = address.split(',')[1][:-len(str(zip_code)) - 1]
+                    else:
+                        print(full_filename)
+
+                    # print(city)
+                except AttributeError:
+                    print("Can't find address")
+                except IndexError:
+                    print("Can't find zip")
+                    print(full_filename)
                 email = ''
                 try:
                     email = soup.find("div", class_="src__Box-sc-1sbtrzs-0 styled-components__DetailGridItem-d53rlt-0 styled-components__Email-d53rlt-3 icSxPE").text
-                    print(email)
+                    # print(email)
                 except AttributeError:
                     print("Can't find email")
                 website = ''
                 try:
                     website = soup.find("div", class_="src__Box-sc-1sbtrzs-0 styled-components__DetailGridItem-d53rlt-0 styled-components__Website-d53rlt-4 uWbmk").text
-                    print(website)
+                    # print(website)
                 except AttributeError:
                     print("Can't find website")
                 phone = ''
                 try:
                     phone = soup.find("div", class_="src__Box-sc-1sbtrzs-0 styled-components__DetailGridItem-d53rlt-0 styled-components__PhoneNumber-d53rlt-8 cMfVkr").text
-                    print(phone)
+                    # print(phone)
                 except AttributeError:
                     print("Can't find phone")
                 day_hours = ''
                 try:
                     day_hours = soup.find("div", class_="src__Box-sc-1sbtrzs-0 styled-components__DetailGridItem-d53rlt-0 styled-components__OpenHours-d53rlt-1 cBJxsr").text
-                    print(day_hours)
+                    # print(day_hours)
                 except AttributeError:
                     print("Can't find day_hours")
 
                 worksheet_all.write(row, col, name, cell_format)
                 worksheet_all.write(row, col + 1, str(location), cell_format)
-                worksheet_all.write(row, col + 2, email, cell_format)
-                worksheet_all.write(row, col + 3, str(website), cell_format)
-                worksheet_all.write(row, col + 4, str(phone), cell__wrapped_format)
-                worksheet_all.write(row, col + 5, str(day_hours), cell_format)
-                worksheet_all.write(row, col + 6, full_filename, cell_format)
+                worksheet_all.write(row, col + 2, str(city), cell_format)
+                worksheet_all.write(row, col + 3, str(state), cell_format)
+                worksheet_all.write(row, col + 4, str(zip_code), cell_format)
+                worksheet_all.write(row, col + 5, email, cell_format)
+                worksheet_all.write(row, col + 6, str(website), cell_format)
+                worksheet_all.write(row, col + 7, str(phone), cell__wrapped_format)
+                worksheet_all.write(row, col + 8, str(day_hours), cell_format)
+                worksheet_all.write(row, col + 9, full_filename, cell_format)
 
             except AttributeError:
                 print(full_filename)
