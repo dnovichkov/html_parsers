@@ -1,4 +1,4 @@
-These project works with Python3.
+This project works with Python3.
 
 It's recommended to setup virtual environment. Here are some links:
 [https://docs.python.org/3/library/venv.html](https://docs.python.org/3/library/venv.html) and 
