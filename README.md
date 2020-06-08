@@ -8,14 +8,12 @@ Example for Windows:
 
 ```
 python -m venv env
-cd env/Scripts
-activate.bat
+call env/scripts/activate.bat
 ```
 
-Then return to source directory and install necessary modules:
+Then install necessary modules:
 
 ```
-cd ../../
 pip install -r requirements.txt
 ```
 
